@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artemis-server
+  labels:
+    app: artemis-server
+spec:
+  selector:
+    matchLabels:
+      app: artemis-server
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: artemis-server
+    spec:
+      containers:
+        - name: artemis-server
+          image: 'quay.io/artemiscloud/activemq-artemis-broker:artemis.2.26.0'
+          env:
+            - name: AMQ_USER
+              value: "admin"
+            - name: AMQ_PASSWORD
+              value: "should_be_from_secret"
+            - name: AMQ_EXTRA_ARGS
+              value: "--host 0.0.0.0 --http-host 0.0.0.0"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1024Mi"
+              cpu: "500m"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - artemis-server
+                topologyKey: kubernetes.io/chat-microservices

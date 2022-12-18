@@ -1,0 +1,29 @@
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: artemis-server
+spec:
+    ports:
+        - name: connector
+          protocol: TCP
+          port: 61616
+          targetPort: 61616
+    selector:
+        app: artemis-server
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: artemis-server-console
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8161
+  selector:
+    app: artemis-server
