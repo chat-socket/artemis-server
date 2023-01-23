@@ -8,6 +8,8 @@ TEST_PATH=Documents/projects/microservices-chat-app/artemis-server
 
 .PHONY: update
 update:
+		@eval $$(minikube docker-env) ;\
+		docker image build -t $(REPO):$(VERSION) -f Dockerfile .
 		kubectl set image -n $(NSPACE) deployment/$(REPO) *=$(REPO):$(TIMESTAMP)
 
 .PHONY: delete
@@ -16,10 +18,12 @@ delete:
 
 .PHONY: create
 create:
+		@eval $$(minikube docker-env) ;\
+		docker image build -t $(REPO):$(VERSION) -f Dockerfile .
 		kubectl create -f $(DFILE) -n $(NSPACE)
 		kubectl create -f $(SFILE) -n $(NSPACE)
 
 .PHONY: remote
 remote:
-		rsync -Pva --exclude build --exclude=".*" --delete --ignore-existing . $(REMOTE_SERVER):$(TEST_PATH)
+		rsync -Pva --exclude build --exclude=".*" --delete . $(REMOTE_SERVER):$(TEST_PATH)
 		ssh -t -l $(REMOTE_USER) $(REMOTE_SERVER) "cd ${TEST_PATH} ; bash --login" < /dev/tty
